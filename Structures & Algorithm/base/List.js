@@ -1,11 +1,3 @@
-/*———————————————————————————————————————————— 数组 ————————————————————————————————————————————*/
-var arr = []
-
-for (var n = 0; n < 10; n++)
-	arr.push(Math.round(Math.random() * 10))
-
-console.log(arr)
-
 /**
  * 交换位置
  */
@@ -50,25 +42,58 @@ Array.prototype.move = function (k) {
 	console.log("挪位-左：", anoArr)
 }
 
-
 /**
- * 插入排序
+ * 冒泡排序
  */
-Array.prototype.insertSort = function() {
-	let i, j, flag, temp
-	for (i = 0, len = this.length; i < len; i++) {
-		j = i + 1
-		flag = this[j]
-		for (; j--;) {
-			if (this[j] > flag) {
-				this[j + 1] = this[j]
-				this[j] = flag
-			} else {
-				break
+Array.prototype.bubbleSort = function() {
+	const len = this.length
+	let i, j, flag = true
+	for (i = 0; i < len && flag; i++) {
+		flag = false
+		for (j = len - 1; j >= i; j--) {
+			if (this[j] > this[j + 1]) {
+				this.swap(j, j + 1)
+				flag = true
 			}
 		}
 	}
 }
+
+/**
+ * 选择排序
+ */
+Array.prototype.selectSort = function() {
+	const len = this.length
+	let i, j, min
+	for (i = 0; i < len && flag; i++) {
+		min = i
+		for (j = i + 1; j < len; j++) {
+			if (this[j] < this[min]) {
+				min = j
+			}
+		}
+		i !== min && this.swap(i, min)
+	}
+}
+
+/**
+ * 插入排序
+ */
+Array.prototype.insertSort = function(start, end) {
+	var i, j, pivot
+	end = end !== undefined ? end + 1 : this.length
+	start = start !== undefined ? start : 0
+
+	for (i = start; i < end; i++) {
+		pivot = this[i]
+		// 当存在左侧大于右侧的数时
+		for (j = i - 1; j > start - 1 && this[j] > pivot; j--) {
+			this[j + 1] = this[j]
+		}
+		this[j + 1] = pivot
+	}
+}
+
 
 /**
  * 希尔排序
@@ -81,31 +106,34 @@ Array.prototype.shellSort = function() {
  * 堆排序
  */
 Array.prototype.heapSort = function() {
- 	let i, len = this.length
- 	for (i = Math.floor(len / 2); i > 0; i--) {
- 		this.heapAjust(i, len)
- 	}
- 	for (i = len; i > 1; i--) {
- 		this.swap(1, i)
- 		this.heapAjust(1, i - 1)
- 	}
- }
-Array.prototype.heapAjust = function(i, j) {
-	let temp, k
-	temp = this[i]
-	for (k = i * 2; k < j; k *= 2) {
-		if (k < j && this[k] < this[k + 1]) {
-			++k
-		}
-		if (temp >= this[k]) {
-			break
-		}
-		this[i] = this[k]
-		i = k
+	var i, len = this.length - 1
+	for (i = Math.floor((len) / 2); i >= 0; i--) {
+		this.heapAdjust(i, len)
 	}
-	this[i] = temp
+	for (i = len; i > 0; i--) {
+		this.swap(0, i)
+		this.heapAdjust(0, i - 1)
+		console.log(this)
+	}
 }
 
+Array.prototype.heapAdjust = function(low, high) {
+	var i = low,
+	    j = 2 * i,
+	    pivot = this[i]
+	while (j <= high) {
+	    if (j < high && this[j] < this[j + 1])
+			j++ //从左右子节点中选出较大的节点
+	    if (pivot < this[j]) { //根节点(pivot)<较大的节点
+	        this[i] = this[j]
+	        i = j
+	        j *= 2
+	    } else {
+			break
+		}
+	}
+	this[i] = pivot //被筛选的元素放在最终的位置上
+}
 
 /**
  * 归并排序
@@ -128,12 +156,12 @@ Array.prototype.MergePass = function(low, high) {
 	}
 	if (i < high - low + 1)
 		this.merge(i, i + low - 1, high)
-	else
-		for (j = i; j <= high; i++)
-			console.log('what')
 }
 
 Array.prototype.mergeSort = function(low, high) {
+	low = low !== undefined ? low : 0
+	high = high !== undefined ? high : this.length - 1
+
 	if (low < high) {
 		var mid = Math.floor((low + high) / 2)
 		this.mergeSort(low, mid)
@@ -142,65 +170,140 @@ Array.prototype.mergeSort = function(low, high) {
 	}
 }
 
+
 Array.prototype.merge = function(low, mid, high) {
-	var i = low, j = mid + 1 ,k = 0, result = []
-	while(i <= mid && j <= high) {
-	    if(this[i] <= this[j]) { //比较第一部分和第二部分，取较小者
-	        result[k++] = this[i++]
-	    } else {
-	        result[k++] = this[j++]
-	    }
+	var result = [], i, j
+	// 将区间[low, mid]和区间[mid+1, high]的数进行对比，按从小到大的顺序添加到新数组
+	for (i = low, j = mid + 1; i <= mid && j <= high;) {
+		if (this[i] < this[j]) {
+			result.push(this[i++])
+		} else {
+			result.push(this[j++])
+		}
 	}
-	while(i <= mid) {
-	    result[k++] = this[i++]
+	while (i <= mid) {
+		result.push(this[i++])
 	}
-	while(j <= high) {
-	    result[k++] = this[j++]
+	while (j <= high) {
+		result.push(this[j++])
 	}
-	for(k = 0, i = low; i <= high; k++, i++)
-		this[i] = result[k]
+
+	// 将区间[low, high]替换成result
+	result.unshift(low, result.length)
+	this.splice.apply(this, result)
 }
 
 /**
  * 快速排序
  */
-Array.prototype.qksort = function () {
-	var _this = this
+Array.prototype.quickSort = function () {
+	var self = this, i, j, pivot
 
-	var len, temp, half
+	;(function qksort(low, high) {
+		i = low
+		j = high
 
-	len = this.length - 1;				//破坏有序序列，随机交换两个值
-	temp = this[0]
-	half = Math.floor(len/2)
-	this[0] = this[half]
-	this[half] = temp
-
-	function qksort(l, h) {
-		var i, j, flag, tmp
-		i = l
-		j = h
-		flag = _this[l]
+		pivot = self[low]
 		while (i < j) {
-			for (; i < j; j--) {				//从j的位置开始向前遍历
-				if (_this[j] < flag) {			//当出现大于标兵的数值时
-					_this[i++] = _this[j];	//先将_this[i]设置为_this[j],再将最低位向后挪一位
-					break;						//退出当前循环
+			// 从下标j遍历，将大于标兵的数存入下标i处，并将下标往后挪一位
+			for (; i < j; j--) {
+				if (self[j] < pivot) {
+					self[i++] = self[j]
+					break
 				}
 			}
-			for (; i < j; i++) {				//从i的位置开始向后遍历
-				if (_this[i] > flag) {			//当出现小于标兵的数值时
-					_this[j--] = _this[i];	//先将_this[j]设置为_this[i],再将最高位向前挪一位
-					break;						//退出当前循环
+			// 从下标i遍历，将小于标兵的数存入下标j处，并将下标往前挪一位
+			for (; i < j; i++) {
+				if (self[i] > pivot) {
+					self[j--] = self[i]
+					break
 				}
 			}
 		}
-		_this[i] = flag;						//一轮排序后，将最后的i位置数值置为标兵的数值
-		if (--j > l) qksort(l, j)
-		if (++i < h) qksort(i, h);				//当最低位和最高位还没超出范围时，递归
-	}
-	qksort(0, len)
+		self[i] = pivot							//一轮排序后，将最后的下标i（大小分界点）数值置为标兵的数值
+
+		if (--j > low) qksort(low, j)
+		if (++i < high) qksort(i, high)				//当最低位和最高位还没超出范围时，递归
+	})(0, this.length - 1)
+}
+
+/**
+ * 快速优化排序
+ */
+Array.prototype.optimizeSort = function() {
+	var self = this, i, j, mid, pivot, pivotIndex
+
+	;(function qksort(low, high) {
+		if (high - low <= 50) {
+			self.insertSort(low, high)
+		} else {
+			i = low
+			j = high
+			mid = Math.floor((i + j) / 2)
+
+			if (self[low] > self[high]) {
+				self.swap(low, high)
+			}
+			if (self[mid] > self[high]) {
+				self.swap(high, mid)
+			}
+			if (self[mid] > this[low]) {
+				self.swap(mid, low)
+			}
+
+			pivot = self[low]
+			while (i < j) {
+				// 从下标j遍历，将大于标兵的数存入下标i处，并将下标往后挪一位
+				for (; i < j; j--) {
+					if (self[j] < pivot) {
+						self[i++] = self[j]
+						break
+					}
+				}
+				// 从下标i遍历，将小于标兵的数存入下标j处，并将下标往前挪一位
+				for (; i < j; i++) {
+					if (self[i] > pivot) {
+						self[j--] = self[i]
+						break
+					}
+				}
+			}
+			self[i] = pivot							//一轮排序后，将最后的下标i（大小分界点）数值置为标兵的数值
+
+			if (--j > low) qksort(low, j)
+			if (++i < high) qksort(i, high)				//当最低位和最高位还没超出范围时，递归
+		}
+	})(0, this.length - 1)
 }
 
 
-arr.mergeSort1()
+
+/*———————————————————————————————————————————— 数组 ————————————————————————————————————————————*/
+var arr = []
+var total = 10
+for (var n = 0; n < total; n++)
+ 	arr.push(Math.round(Math.random() * total))
+
 console.log(arr)
+//
+// const Benchmark = require('benchmark')
+// const suite = new Benchmark.Suite
+//
+//
+//
+// suite
+// .add('1', function() {
+// 	var temp = arr.slice()
+// 	temp.quickSort()
+// })
+// .add('2', function() {
+// 	var temp = arr.slice()
+// 	temp.optimizeSort()
+// })
+// .on('cycle', function(event) {
+//   console.log(String(event.target))
+// })
+// .on('complete', function() {
+//   console.log('Fastest is ' + this.filter('fastest').map('name'))
+// })
+// .run({ 'async': true })
